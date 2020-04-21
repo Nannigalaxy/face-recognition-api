@@ -4,7 +4,7 @@ API returns face embedding vector as response.
 
 ## Getting Started
 
-This API uses deep learning to generate face embedding vector using Keras on top of tensorflow.
+This API uses deep learning to generate face embedding vector using Keras on top of tensorflow.\
 Facenet implementation. Inception-ResNet-v2 model.
 
 ### Prerequisites
@@ -19,18 +19,18 @@ pip install -r requirements.txt
 gunicorn api:app
 ```
 
-### Example
+## Example 
 
-Generate Face embedding vector 
-
-## Request
+### Request
 
 /face-embedding/url
 
 ```
-curl -i -H 'Content-Type: application/json' -d '{"url":"https://i.imgur.com/oRa0KpU.jpeg"}'  http://localhost:8000/face-embedding/url
+curl -i -H 'Content-Type: application/json' \
+-d '{"url":"https://i.imgur.com/oRa0KpU.jpeg"}' \
+http://localhost:8000/face-embedding/url
 ```
-## Response
+### Response
 
 ```
 HTTP/1.1 201 CREATED
