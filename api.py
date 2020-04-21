@@ -35,9 +35,7 @@ def get_embedding(model,req_img):
 @app.route('/')
 @app.route('/face-embedding',methods=['GET'])
 def home():
-    return '''<h1>Face Embedding API</h1>
-
-    		  <h4>Author: Nandan M</h4>'''
+    return '''<h1>Face Embedding API</h1>'''
 
 
 @app.route('/face-embedding/url', methods=['POST'])
