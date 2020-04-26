@@ -15,27 +15,34 @@ model = Facenet.loadModel()
 print("model loaded")
 
 
-def get_embedding(model,req_img):
+
+def get_embedding(model,img_path):
+	if type(img_path) == list:
+		img_targ = img_path
+	else:
+		img_targ = [img_path]
 	
-	img_res = req_img.read()
-	img = np.asarray(bytearray(img_res), dtype="uint8")
-	img = cv2.imdecode(img, cv2.IMREAD_COLOR)
-
 	input_shape = (160, 160)
+	pred_avg = 0
 
-	img_face = functions.detectFace(img, input_shape)
-	img_targ_rep = model.predict(img_face)[0,:]
+	for targ in img_targ:
 
-	# converting numpy array to list
+		img_face = functions.detectFace(targ, input_shape)
+		img_targ_rep = model.predict(img_face)[0,:]
+		pred_avg+=np.array(img_targ_rep)
+
+	img_targ_rep = pred_avg/len(img_targ)
 	embedding = img_targ_rep.tolist()
 
 	return embedding
+
 
 
 @app.route('/')
 @app.route('/face-embedding',methods=['GET'])
 def home():
     return '''<h1>Face Embedding API</h1>'''
+
 
 
 @app.route('/face-embedding/url', methods=['POST'])
@@ -45,30 +52,59 @@ def face_embedding_url():
 
     img_url = request.json['url']
     req_img = urllib.request.urlopen(img_url)
-    vector = get_embedding(model,req_img)
 
-    # response as json
-    embedding = {
+    img_res = req_img.read()
+    img = np.asarray(bytearray(img_res), dtype="uint8")
+    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+
+    vector = get_embedding(model,img)
+
+    # response to request
+    response = {'embedding':{
         'url': img_url,
         'vector': vector
-    }
-    return jsonify({'face_embedding': embedding}), 201
+    }}
+    return jsonify(response), 201
 
 
-# @app.route('/face-embedding/mongodb/gridfs', methods=['POST'])
-# def face_embedding_mongo():
-#     if not request.json or not 'raw_gridfs_file' in request.json:
-#         abort(400)
 
-#     grid_fs = request.json['raw_gridfs_file']
-#     vector = get_embedding(model,grid_fs)
+@app.route('/face-embedding/img', methods=['POST'])
+def face_embedding_img():
+    if not request.json or not 'img' in request.json:
+        abort(400)
 
-#     embedding = {
-#         'id': grid_fs._id,
-#         'name': grid_fs.filename,
-#         'vector': vector
-#     }
-#     return jsonify({'face_embedding': embedding}), 201
+    img = request.json['img']
+    vector = get_embedding_url(model,img)
+
+    # response to request
+    response = {'embedding':{
+        'url': img_url,
+        'vector': vector
+    }}
+    return jsonify(response), 201
+
+
+@app.route('/face-embedding/array', methods=['POST'])
+def face_embedding_array():
+    if not request.json or not 'array' in request.json:
+        abort(400)
+    img_arr = request.json['array']
+
+    if type(img_arr) == list:
+        img_targ = img_arr
+    else:
+        img_targ = [img_arr]
+    imgs = []
+    for image in img_arr:
+	    img = np.asarray(image, dtype="uint8")
+	    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+	    imgs.append(img)
+    vector = get_embedding(model,imgs)
+
+    response = {'embedding': {
+        'vector': vector
+    }}
+    return jsonify(response), 201
 
 
 if __name__=='__main__':
