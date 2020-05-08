@@ -49,26 +49,11 @@ def face_embedding_url():
 
     # response as json
     embedding = {
+	'status':0,
         'url': img_url,
         'vector': vector
     }
     return jsonify({'face_embedding': embedding}), 201
-
-
-# @app.route('/face-embedding/mongodb/gridfs', methods=['POST'])
-# def face_embedding_mongo():
-#     if not request.json or not 'raw_gridfs_file' in request.json:
-#         abort(400)
-
-#     grid_fs = request.json['raw_gridfs_file']
-#     vector = get_embedding(model,grid_fs)
-
-#     embedding = {
-#         'id': grid_fs._id,
-#         'name': grid_fs.filename,
-#         'vector': vector
-#     }
-#     return jsonify({'face_embedding': embedding}), 201
 
 
 if __name__=='__main__':
